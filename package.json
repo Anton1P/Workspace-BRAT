@@ -1,8 +1,14 @@
 {
-  "name": "dev-workspace",
+  "name": "brat-monorepo",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "BRAT",
     "brat-parser-lib"
-  ]
+  ],
+  "scripts": {
+    "dev": "npm run dev -w BRAT",
+    "build:lib": "npm run build -w brat-parser-lib",
+    "build:app": "npm run build -w BRAT"
+  }
 }

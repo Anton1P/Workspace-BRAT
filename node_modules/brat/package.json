@@ -11,7 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "brat-parser-lib": "file:../brat-parser-lib",
+    "brat-parser-lib": "*",
     "brawlhalla-replay-reader": "^1.0.3",
     "next": "16.2.0",
     "pako": "^2.1.0",
