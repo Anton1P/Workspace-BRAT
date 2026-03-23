@@ -1,0 +1,8 @@
+{
+  "name": "dev-workspace",
+  "private": true,
+  "workspaces": [
+    "BRAT",
+    "brat-parser-lib"
+  ]
+}

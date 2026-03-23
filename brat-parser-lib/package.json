@@ -1,0 +1,23 @@
+{
+  "name": "brat-parser-lib",
+  "version": "1.0.0",
+  "description": "Standalone Brawlhalla .replay parser package. Extracts game data, inputs, and results.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/pako": "^2.0.3",
+    "typescript": "^5.2.2",
+    "vitest": "^1.0.0"
+  },
+  "author": "Antonin Parede & AI",
+  "license": "MIT"
+}
