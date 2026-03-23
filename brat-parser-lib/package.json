@@ -16,7 +16,7 @@
     "@types/node": "^20.0.0",
     "@types/pako": "^2.0.3",
     "typescript": "^5.2.2",
-    "vitest": "^1.0.0"
+    "vitest": "^4.1.1"
   },
   "author": "Antonin Parede & AI",
   "license": "MIT"
