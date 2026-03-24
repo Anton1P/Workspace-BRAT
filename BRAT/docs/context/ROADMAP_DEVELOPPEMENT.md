@@ -9,6 +9,7 @@
 
 | Clé | Valeur |
 |---|---|
+| **Architecture** | Monorepo (NPM Workspaces) |
 | **Stack** | Next.js (App Router), TypeScript, CSS Vanilla |
 | **Hébergement** | Vercel (0€) |
 | **Traitement** | 100% côté client (aucune donnée serveur) |
@@ -37,7 +38,7 @@
 
 ## Étape 1.1 — Recherche & Compréhension du Repo de Référence
 
-- [ ] **Tâche 1.1.1** : *Cloner ou explorer en profondeur le repo GitHub `itselectroz/brawlhalla-replay-reader`. Documenter dans un fichier `NOTES_REVERSE_ENGINEERING.md` à la racine du projet :*
+- [x] **Tâche 1.1.1** : *Cloner ou explorer en profondeur le repo GitHub `itselectroz/brawlhalla-replay-reader`. Documenter dans un fichier `NOTES_REVERSE_ENGINEERING.md` à la racine du projet :*
   - La structure du format binaire `.replay` (en-tête, sections, offsets).
   - La méthode de décompression utilisée (si applicable — zlib, gzip, etc.).
   - Le rôle de la classe `ReplayData` et de sa méthode statique `ReadReplay(data: Buffer)`.
@@ -45,36 +46,31 @@
   - Le fonctionnement du champ `inputState` (bitmask) : quels bits correspondent à quelles touches (Light Attack, Heavy Attack, Jump, Dodge, Dash, Throw, directionnels Haut / Bas / Gauche / Droite).
   - 🛡️ **Test de Validation** : Le fichier `NOTES_REVERSE_ENGINEERING.md` existe, est lisible, contient au minimum un tableau de mapping des bits de `inputState` vers les touches du jeu, et un schéma textuel de la structure binaire du `.replay`.
 
-- [ ] **Tâche 1.1.2** : *Identifier les limitations de la bibliothèque de référence : version du jeu supportée, champs marqués `unknown`, données manquantes (positions X/Y, états Hitstun, événements Hit). Lister dans `NOTES_REVERSE_ENGINEERING.md` ce qui est directement disponible vs. ce qui devra être inféré.*
+- [x] **Tâche 1.1.2** : *Identifier les limitations de la bibliothèque de référence : version du jeu supportée, champs marqués `unknown`, données manquantes (positions X/Y, états Hitstun, événements Hit). Lister dans `NOTES_REVERSE_ENGINEERING.md` ce qui est directement disponible vs. ce qui devra être inféré.*
   - 🛡️ **Test de Validation** : La section "Limitations & Données Manquantes" du fichier contient au minimum 5 items catégorisés.
 
 ---
 
 ## Étape 1.2 — Setup & Scaffolding du Projet Next.js
 
-- [ ] **Tâche 1.2.1** : *Initialiser un projet Next.js avec TypeScript en utilisant `npx -y create-next-app@latest ./ --typescript --eslint --app --src-dir --no-tailwind --import-alias "@/*"`. S'assurer que le projet compile et se lance correctement.*
+- [x] **Tâche 1.2.1** : *Initialiser un projet Next.js avec TypeScript en utilisant `npx -y create-next-app@latest ./ --typescript --eslint --app --src-dir --no-tailwind --import-alias "@/*"`. S'assurer que le projet compile et se lance correctement.*
   - 🛡️ **Test de Validation** : `npm run dev` démarre sans erreur. La page par défaut de Next.js s'affiche dans le navigateur à `http://localhost:3000`. Le terminal n'affiche aucun warning TypeScript.
 
-- [ ] **Tâche 1.2.2** : *Créer l'arborescence de dossiers du projet. S'assurer que chaque dossier contient au minimum un fichier `index.ts` vide (ou un `.gitkeep`) pour être tracké par Git.*
-  ```
-  src/
-  ├── app/                    # Next.js App Router
-  │   ├── layout.tsx
-  │   ├── page.tsx
-  │   └── globals.css
-  ├── core/                   # Cœur métier (parsing, engine)
-  │   ├── parser/             # Décodeur binaire .replay
-  │   │   ├── replay-reader.ts
-  │   │   ├── binary-reader.ts
-  │   │   └── types.ts
-  │   └── engine/             # Moteur d'analyse (Phases 3+)
-  │       └── index.ts
-  ├── components/             # Composants UI React
-  │   └── index.ts
-  ├── hooks/                  # Custom React Hooks
-  │   └── index.ts
-  └── utils/                  # Utilitaires divers
-      └── index.ts
+- [x] **Tâche 1.2.2** : *Créer l'arborescence de dossiers du projet. S'assurer que chaque dossier contient au minimum un fichier `index.ts` vide (ou un `.gitkeep`) pour être tracké par Git.*
+  ```text
+  Workspace-brat/
+  ├── node_modules/          # Partagé
+  ├── package.json           # Configuration du Workspace
+  ├── brat-parser-lib/       # Librairie de parsing (Phase 1)
+  │   ├── src/
+  │   └── package.json
+  └── BRAT/                  # Application Next.js (Phases 2+)
+      ├── src/
+      │   ├── app/
+      │   ├── components/
+      │   ├── hooks/
+      │   └── core/engine/   # Moteur d'analyse (Phases 3+)
+      └── package.json
   ```
   - 🛡️ **Test de Validation** : La commande `find src -type d` (ou `Get-ChildItem -Recurse -Directory src`) affiche exactement les dossiers listés ci-dessus. `npm run build` passe toujours sans erreur.
 
@@ -82,7 +78,7 @@
 
 ## Étape 1.3 — Implémentation du Lecteur Binaire (Binary Reader)
 
-- [ ] **Tâche 1.3.1** : *Créer `src/core/parser/binary-reader.ts`. Cette classe utilitaire encapsule un `ArrayBuffer` et offre des méthodes de lecture séquentielle (read-cursor pattern) :*
+- [x] **Tâche 1.3.1** : *Créer `src/core/parser/binary-reader.ts`. Cette classe utilitaire encapsule un `ArrayBuffer` et offre des méthodes de lecture séquentielle (read-cursor pattern) :*
   - `readUint8()`, `readUint16LE()`, `readUint32LE()`, `readInt32LE()`
   - `readFloat32LE()`, `readFloat64LE()`
   - `readBytes(length: number): Uint8Array`
@@ -93,14 +89,14 @@
   - Le tout doit fonctionner avec `ArrayBuffer` / `DataView` (API Web, pas de Node `Buffer`).
   - 🛡️ **Test de Validation** : Créer un fichier `src/core/parser/__tests__/binary-reader.test.ts`. Écrire un test unitaire qui construit un `ArrayBuffer` manuellement avec des valeurs connues (ex. `[0x42, 0x52, 0x41, 0x54]`), instancie `BinaryReader`, et vérifie que `readUint8()` retourne `0x42`, `readString(4)` retourne `"BRAT"`, et que l'offset avance correctement. Exécuter avec `npx jest` ou le test runner configuré. **Tous les tests doivent passer.**
 
-- [ ] **Tâche 1.3.2** : *Ajouter la gestion de la décompression. D'après la recherche de la Tâche 1.1.1, implémenter la routine de décompression nécessaire (probable : `pako` pour la décompression zlib côté navigateur). Installer `pako` via `npm install pako` et `@types/pako` via `npm install -D @types/pako` si nécessaire. Créer une fonction `decompressReplayBuffer(raw: ArrayBuffer): ArrayBuffer` dans `binary-reader.ts` ou un fichier séparé `decompress.ts`.*
+- [x] **Tâche 1.3.2** : *Ajouter la gestion de la décompression. D'après la recherche de la Tâche 1.1.1, implémenter la routine de décompression nécessaire (probable : `pako` pour la décompression zlib côté navigateur). Installer `pako` via `npm install pako` et `@types/pako` via `npm install -D @types/pako` si nécessaire. Créer une fonction `decompressReplayBuffer(raw: ArrayBuffer): ArrayBuffer` dans `binary-reader.ts` ou un fichier séparé `decompress.ts`.*
   - 🛡️ **Test de Validation** : Comprimer manuellement un payload connu avec `pako.deflate`, puis vérifier que `decompressReplayBuffer` le décompresse correctement et retourne les mêmes bytes. Test unitaire passant.
 
 ---
 
 ## Étape 1.4 — Implémentation du Parser `.replay` (Replay Reader)
 
-- [ ] **Tâche 1.4.1** : *Créer `src/core/parser/types.ts`. Définir toutes les interfaces TypeScript miroirs des types du repo de référence, adaptées à l'usage navigateur :*
+- [x] **Tâche 1.4.1** : *Créer `src/core/parser/types.ts`. Définir toutes les interfaces TypeScript miroirs des types du repo de référence, adaptées à l'usage navigateur :*
   ```typescript
   export interface ReplayData {
     length: number;
@@ -135,7 +131,7 @@
   ```
   - 🛡️ **Test de Validation** : `npm run build` passe sans erreur TypeScript. Depuis un fichier test, on peut importer chaque type et l'utiliser (ex: `const d: Death = { entityId: 1, timestamp: 5000 };`).
 
-- [ ] **Tâche 1.4.2** : *Créer un enum ou un objet constant `InputFlags` dans `types.ts` qui mappe chaque bit du champ `inputState` à une action de jeu. Ce mapping doit être issu de la recherche faite en Tâche 1.1.1.*
+- [x] **Tâche 1.4.2** : *Créer un enum ou un objet constant `InputFlags` dans `types.ts` qui mappe chaque bit du champ `inputState` à une action de jeu. Ce mapping doit être issu de la recherche faite en Tâche 1.1.1.*
   ```typescript
   export const InputFlags = {
     AIM_UP:       1 << 0,  // Bit 0
@@ -152,7 +148,7 @@
   ```
   - 🛡️ **Test de Validation** : Écrire un test qui vérifie que `InputFlags.JUMP & someKnownInputState` retourne le résultat attendu pour au moins 3 cas connus. Le bitmasking fonctionne correctement.
 
-- [ ] **Tâche 1.4.3** : *Créer `src/core/parser/replay-reader.ts`. Implémenter la fonction principale `parseReplay(rawBuffer: ArrayBuffer): ReplayData`. Cette fonction :*
+- [x] **Tâche 1.4.3** : *Créer `src/core/parser/replay-reader.ts`. Implémenter la fonction principale `parseReplay(rawBuffer: ArrayBuffer): ReplayData`. Cette fonction :*
   1. Décompresse le buffer si nécessaire.
   2. Instancie un `BinaryReader`.
   3. Lit l'en-tête du replay (nombre magique, version, seed aléatoire, etc.).
@@ -168,13 +164,13 @@
 
 ## Étape 1.5 — Preuve de Concept : Dump Brut dans la Console du Navigateur
 
-- [ ] **Tâche 1.5.1** : *Créer un composant React temporaire `src/components/DebugReplayLoader.tsx`. Ce composant affiche un simple `<input type="file" accept=".replay">`. Quand un fichier est sélectionné :*
+- [x] **Tâche 1.5.1** : *Créer un composant React temporaire `src/components/DebugReplayLoader.tsx`. Ce composant affiche un simple `<input type="file" accept=".replay">`. Quand un fichier est sélectionné :*
   1. Lire le fichier avec `FileReader.readAsArrayBuffer()`.
   2. Passer le buffer à `parseReplay()`.
   3. `console.log()` l'objet `ReplayData` résultant dans la console du navigateur.
   - 🛡️ **Test de Validation** : Ouvrir `http://localhost:3000` dans le navigateur, ouvrir la console DevTools (F12), charger un fichier `.replay` réel via l'input. **La console affiche un objet JSON lisible** contenant : `entities` (avec les noms des joueurs), `deaths` (avec les timestamps), et `inputs` (avec des tableaux de `{ timestamp, inputState }`). Aucune erreur dans la console.
 
-- [ ] **Tâche 1.5.2** : *Enrichir le dump en console avec un décodage humain des inputs. Créer une fonction utilitaire `decodeInputState(state: number): string[]` dans `src/utils/input-decoder.ts` qui prend un `inputState` et retourne un tableau de noms de touches actives.*
+- [x] **Tâche 1.5.2** : *Enrichir le dump en console avec un décodage humain des inputs. Créer une fonction utilitaire `decodeInputState(state: number): string[]` dans `src/utils/input-decoder.ts` qui prend un `inputState` et retourne un tableau de noms de touches actives.*
   ```typescript
   // Ex: decodeInputState(0b10010000) => ["JUMP", "DODGE"]
   ```
@@ -182,7 +178,9 @@
 
 ---
 
-### ✅ JALON DE PHASE 1 (Gate Check)
+### ✅ JALON DE PHASE 1 (Gate Check) [x] Validé
+> **Attention :** Le résultat de cette phase 1 a été extrait dans son propre package npm indépendant (`brat-parser-lib`) au sein du monorepo.
+
 > **Avant de passer à la Phase 2, les conditions suivantes doivent TOUTES être vraies :**
 > 1. Un fichier `.replay` réel peut être chargé dans le navigateur via un `<input type="file">`.
 > 2. L'objet `ReplayData` est affiché correctement dans la console DevTools.
@@ -248,7 +246,7 @@
 
 ## Étape 2.4 — Hook de Gestion d'État & Connexion au Parser
 
-- [ ] **Tâche 2.4.1** : *Créer `src/hooks/useReplayAnalyzer.ts`. Ce custom hook orchestre tout le flux :*
+- [ ] **Tâche 2.4.1** : *Créer `src/hooks/useReplayAnalyzer.ts` dans le paquet `BRAT`. Ce custom hook orchestre tout le flux :*
   ```typescript
   type AnalyzerState =
     | { status: 'idle' }
@@ -257,6 +255,7 @@
     | { status: 'error'; error: string; fileName: string };
   ```
   - Expose `state`, `processFile(file: File): Promise<void>`, et `reset(): void`.
+  - **Important :** Importe la fonction de parsing et les types via la librairie externe : `import { parseReplay, type ReplayData } from 'brat-parser-lib';`
   - `processFile` : lit le fichier en `ArrayBuffer` via `FileReader`, appelle `parseReplay()`, met à jour l'état.
   - Gère les erreurs (fichier corrompu, mauvais format) avec un message explicite.
   - 🛡️ **Test de Validation** : Depuis la console DevTools, ou via un bouton de test, appeler `processFile` avec un vrai fichier `.replay`. L'état passe de `idle` → `loading` → `success`. L'objet `data` contient un `ReplayData` valide. Tester aussi avec un fichier `.txt` renommé en `.replay` : l'état passe à `error` avec un message explicite.
@@ -284,6 +283,7 @@
 # ═══════════════════════════════════════════════════════════════
 # PHASE 3 — MOTEUR D'ANALYSE (TIER 1)
 # « Transformer la Donnée Brute en Intelligence »
+# (Le dossier src/core/engine/ se trouve dans le paquet BRAT. Les types ReplayData, InputEvent, etc. sont importés depuis brat-parser-lib)
 # ═══════════════════════════════════════════════════════════════
 
 > **Objectif :** Implémenter les 4 métriques classées "Tier 1" dans le cahier des charges. Ce sont les plus simples car elles reposent principalement sur du comptage et de la lecture directe d'inputs/flags.
@@ -544,26 +544,26 @@
 
 | Fichier | Phase | Rôle |
 |---|---|---|
-| `NOTES_REVERSE_ENGINEERING.md` | 1 | Documentation de la recherche |
-| `src/core/parser/binary-reader.ts` | 1 | Lecture binaire séquentielle |
-| `src/core/parser/types.ts` | 1 | Interfaces TypeScript du replay |
-| `src/core/parser/replay-reader.ts` | 1 | Parser principal `.replay` → `ReplayData` |
-| `src/utils/input-decoder.ts` | 1 | Décodage bitmask → noms de touches |
-| `src/components/DropZone/*` | 2 | Zone de Drag & Drop |
-| `src/components/Loader/*` | 2 | Écran de chargement |
-| `src/hooks/useReplayAnalyzer.ts` | 2 | Hook d'orchestration des états |
-| `src/core/engine/types.ts` | 3 | Interfaces des résultats d'analyse |
-| `src/core/engine/analyzer.ts` | 3 | Fonction maître `analyzeTier1` |
-| `src/core/engine/metrics/signature-efficiency.ts` | 3 | Métrique #7 |
-| `src/core/engine/metrics/grounded-vs-aerial.ts` | 3 | Métrique #6 |
-| `src/core/engine/metrics/weapon-starvation.ts` | 3 | Métrique #11 |
-| `src/core/engine/metrics/mash-panic.ts` | 3 | Métrique #3 |
-| `src/core/engine/__tests__/analyzer.test.ts` | 4 | Tests unitaires |
-| `src/core/__tests__/integration.test.ts` | 4 | Test d'intégration |
-| `src/components/MetricCard/*` | 4 | Carte de métrique |
-| `src/components/RatioBar/*` | 4 | Barre de ratio |
-| `src/components/StatBreakdown/*` | 4 | Tableau de détails |
-| `src/components/Dashboard/*` | 4 | Dashboard principal |
-| `src/app/globals.css` | 2 | Design System CSS |
-| `src/app/page.tsx` | 2-4 | Page principale (évolution progressive) |
-| `src/app/layout.tsx` | 4 | Layout avec SEO |
+| `BRAT/docs/context/NOTES_REVERSE_ENGINEERING.md` | 1 | Documentation de la recherche |
+| `brat-parser-lib/src/core/parser/binary-reader.ts` | 1 | Lecture binaire séquentielle |
+| `brat-parser-lib/src/core/parser/types.ts` | 1 | Interfaces TypeScript du replay |
+| `brat-parser-lib/src/core/parser/replay-reader.ts` | 1 | Parser principal `.replay` → `ReplayData` |
+| `brat-parser-lib/src/utils/input-decoder.ts` | 1 | Décodage bitmask → noms de touches |
+| `BRAT/src/components/DropZone/*` | 2 | Zone de Drag & Drop |
+| `BRAT/src/components/Loader/*` | 2 | Écran de chargement |
+| `BRAT/src/hooks/useReplayAnalyzer.ts` | 2 | Hook d'orchestration des états |
+| `BRAT/src/core/engine/types.ts` | 3 | Interfaces des résultats d'analyse |
+| `BRAT/src/core/engine/analyzer.ts` | 3 | Fonction maître `analyzeTier1` |
+| `BRAT/src/core/engine/metrics/signature-efficiency.ts` | 3 | Métrique #7 |
+| `BRAT/src/core/engine/metrics/grounded-vs-aerial.ts` | 3 | Métrique #6 |
+| `BRAT/src/core/engine/metrics/weapon-starvation.ts` | 3 | Métrique #11 |
+| `BRAT/src/core/engine/metrics/mash-panic.ts` | 3 | Métrique #3 |
+| `BRAT/src/core/engine/__tests__/analyzer.test.ts` | 4 | Tests unitaires |
+| `BRAT/src/core/__tests__/integration.test.ts` | 4 | Test d'intégration |
+| `BRAT/src/components/MetricCard/*` | 4 | Carte de métrique |
+| `BRAT/src/components/RatioBar/*` | 4 | Barre de ratio |
+| `BRAT/src/components/StatBreakdown/*` | 4 | Tableau de détails |
+| `BRAT/src/components/Dashboard/*` | 4 | Dashboard principal |
+| `BRAT/src/app/globals.css` | 2 | Design System CSS |
+| `BRAT/src/app/page.tsx` | 2-4 | Page principale (évolution progressive) |
+| `BRAT/src/app/layout.tsx` | 4 | Layout avec SEO |

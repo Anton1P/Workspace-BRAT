@@ -18,7 +18,7 @@ enum STATE {
 }
 
 function runDump() {
-  const filePath = path.join(__dirname, '../../replays/[10.04] BikiniBottom.replay');
+  const filePath = path.join(__dirname, '../../BRAT/test-fixtures/[10.04] SmallBrawlhaven.replay');
   const rawBuffer = fs.readFileSync(filePath);
   const decrypted = decompressReplayBuffer(rawBuffer.buffer.slice(rawBuffer.byteOffset, rawBuffer.byteOffset + rawBuffer.byteLength));
   const stream = new BitStream(decrypted);
