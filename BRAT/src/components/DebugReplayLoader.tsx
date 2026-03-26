@@ -49,7 +49,7 @@ export default function DebugReplayLoader() {
         console.log(`  Player "${entity.name}" (ID: ${entity.id})`);
         console.log(`    Team: ${entity.data.team}`);
         console.log(`    Bot: ${entity.data.bot}`);
-        console.log(`    Heroes:`, entity.data.heroes.map(h => `heroId=${h.heroId}, costumeId=${h.costumeId}`));
+        console.log(`    Heroes:`, entity.data.heroes.map(h => `heroId=${h.heroId}, costumeId=${h.costumeId}, stance=${h.stance}, weaponSkin1=${h.weaponSkin1}, weaponSkin2=${h.weaponSkin2}`));
       }
 
       // Log deaths

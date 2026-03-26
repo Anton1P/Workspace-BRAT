@@ -187,7 +187,8 @@ function readPlayerData(stream: BitStream, replay: ReplayData): void {
             if (testBool === true) {
                 // --- ANCRE A RENFORCÉE : Nouvelle Entité ---
                 const testEntityId = stream.ReadInt();
-                if (testEntityId > 0 && testEntityId < 50) {
+                // L'ID de la nouvelle entité DOIT logiquement être l'ID suivant exact
+                if (testEntityId === replay.entities.length + 1) {
                     // Deep Look-ahead : le champ suivant est la longueur du nom (Short16)
                     const nameLength = stream.ReadShort(); 
                     if (nameLength > 0 && nameLength < 50) {
@@ -201,21 +202,23 @@ function readPlayerData(stream: BitStream, replay: ReplayData): void {
                 // --- ANCRE B RENFORCÉE : Fin du bloc PlayerData ---
                 const testChecksum = stream.ReadInt();
                 const nextTag = stream.ReadBits(4);
-                
+
                 // Tags valides après PlayerData : 1 (Inputs) ou 6 (Results)
                 if (nextTag === 1 || nextTag === 6) {
-                    // Deep Look-ahead dans le bloc suivant !
-                    if (nextTag === 1) { 
-                        // Si c'est le bloc Inputs : le bit suivant est 'true' (hasInputLoop), puis l'EntityId (5 bits)
+                    if (nextTag === 1) {
                         const hasInputLoop = stream.ReadBoolean();
                         const inputEntityId = stream.ReadBits(5);
-                        if (hasInputLoop === true && inputEntityId > 0 && inputEntityId < 10) {
-                            stream.setReadOffset(currentOffset);
-                            foundAnchor = true;
-                            console.log(`[SYNC] Ancre B (Inputs) validée après ${skippedBits} bits sautés.`);
-                            break;
+                        const inputCount = stream.ReadInt();
+                        if (hasInputLoop === true && inputEntityId === 1 && inputCount > 0 && inputCount < 300000) {
+                            const firstTimestamp = stream.ReadInt();
+                            if (firstTimestamp >= 0 && firstTimestamp < 3600000) {
+                                stream.setReadOffset(currentOffset);
+                                foundAnchor = true;
+                                console.log(`[SYNC] Ancre B (Inputs) validée après ${skippedBits} bits sautés.`);
+                                break;
+                            }
                         }
-                    } else if (nextTag === 6) { 
+                    } else if (nextTag === 6) {
                         // Si c'est le bloc Results : les 32 bits suivants sont la durée du match (Length)
                         const matchLengthMs = stream.ReadInt();
                         // Un match dure entre 5 secondes et 15 minutes
@@ -238,6 +241,33 @@ function readPlayerData(stream: BitStream, replay: ReplayData): void {
     if (!foundAnchor) {
         throw new Error(`[BRAT] Échec total du scanner après ${skippedBits} bits.`);
     }
+
+    // --- PHASE 2 : RÉCUPÉRATION DES HÉROS PAR OFFSET INVERSÉ ---
+    // Le scanner a réussi, le stream est positionné juste avant l'ancre (bit testBool)
+    // Nous savons que les HeroData (128 bits chacun) se trouvent à la TOUTE FIN du bloc inconnu !
+    const anchorOffset = stream.getReadOffset();
+    const heroPayloadSize = replay.heroCount * 128;
+    
+    // On recule pour lire les héros précisément
+    stream.setReadOffset(anchorOffset - heroPayloadSize);
+    
+    for (let i = 0; i < replay.heroCount; i++) {
+        const heroId = stream.ReadInt();
+        const costumeId = stream.ReadInt();
+        const stance = stream.ReadInt();
+        const weaponSkins = stream.ReadInt();
+
+        playerDataBlock.heroes.push({
+            heroId: heroId,
+            costumeId: costumeId,
+            stance: stance,
+            weaponSkin1: (weaponSkins >>> 16) & 0xFFFF,
+            weaponSkin2: weaponSkins & 0xFFFF,
+        });
+    }
+
+    // On restaure l'offset de l'ancre pour que le parser continue normalement
+    stream.setReadOffset(anchorOffset);
   }
 
   // Fin du bloc: la boucle while vient de lire le 'false' de l'Ancre B.
@@ -297,7 +327,7 @@ function readPlayerDataBlock(stream: BitStream, heroCount: number): PlayerData {
     colourId, spawnBotId, companionId, emitterId, playerThemeId,
     taunts, winTaunt, loseTaunt, ownedTaunts,
     avatarId, team, connectionTime,
-    heroes: [], // Skipped for now
+    heroes: [], // Extracted dynamically after scanner
     bot: false,
     handicapsEnabled: false,
     handicapStockCount: 3,
