@@ -1,0 +1,92 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  min-height: 400px;
+  padding: 2rem;
+  margin: 0 auto;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.container:hover {
+  background: var(--surface-hover);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dragOver {
+  background: rgba(139, 92, 246, 0.05);
+  border-color: var(--primary);
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.iconContainer {
+  margin-bottom: 1.5rem;
+  color: var(--foreground);
+}
+
+.icon {
+  transition: all 0.3s ease;
+  color: #94a3b8; /* Slate 400 */
+}
+
+.iconPulse {
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.iconGlow {
+  color: var(--primary);
+  filter: drop-shadow(0 0 8px var(--primary-glow));
+  transform: scale(1.1);
+}
+
+.textContainer {
+  text-align: center;
+}
+
+.textContainer h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.badgeLabel {
+  position: absolute;
+  bottom: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 9999px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+}

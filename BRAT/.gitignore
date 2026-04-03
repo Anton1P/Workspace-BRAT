@@ -46,3 +46,12 @@ next-env.d.ts
 
 # === Temp ===
 tmp/
+
+# === Médias & Images Dynamiques ===
+public/assets/legends/avatars/*.png
+public/assets/legends/avatars/*.svg
+public/assets/weapons/*.png
+public/assets/weapons/*.svg
+!public/assets/legends/avatars/.gitkeep
+!public/assets/weapons/.gitkeep
+

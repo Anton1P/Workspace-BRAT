@@ -1,0 +1,64 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 3rem;
+  margin: 0 auto;
+  text-align: center;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(2, 6, 23, 0.8) 100%);
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.spinner {
+  color: var(--primary);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 10px var(--primary-glow));
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.fileName {
+  font-size: 0.9rem;
+  color: #cbd5e1; /* Slate 300 */
+  margin-bottom: 1.5rem;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  color: #64748b; /* Slate 500 */
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
